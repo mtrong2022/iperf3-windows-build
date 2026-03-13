@@ -18,11 +18,9 @@ jobs:
         msystem: MINGW64
         update: true
         install: >-
+          base-devel
           mingw-w64-x86_64-gcc
-          mingw-w64-x86_64-make
-          autoconf
-          automake
-          libtool
+          mingw-w64-x86_64-toolchain
 
     - name: Download iperf3 source
       shell: msys2 {0}
@@ -34,9 +32,9 @@ jobs:
       shell: msys2 {0}
       run: |
         cd iperf-3.20
-        export LDFLAGS="-lws2_32"
-        ./configure --enable-static-only
+        LDFLAGS="-lws2_32" ./configure
         make
+        make install
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
