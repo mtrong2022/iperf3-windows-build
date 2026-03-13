@@ -18,10 +18,11 @@ jobs:
         msys2: mingw64
         update: true
 
-    - name: Install dependencies
-      run: |
-        pacman -Sy --noconfirm mingw-w64-x86_64-gcc mingw-w64-x86_64-make mingw-w64-x86_64-autoconf mingw-w64-x86_64-automake mingw-w64-x86_64-libtool
-
+   - name: Install dependencies
+  shell: msys2 {0}
+  run: |
+    pacman -Sy --noconfirm mingw-w64-x86_64-gcc mingw-w64-x86_64-make mingw-w64-x86_64-autoconf mingw-w64-x86_64-automake mingw-w64-x86_64-libtool
+    
     - name: Download iperf3 source
       run: |
         curl -L https://github.com/esnet/iperf/releases/download/3.20/iperf-3.20.tar.gz -o iperf-3.20.tar.gz
