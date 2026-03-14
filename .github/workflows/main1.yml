@@ -19,8 +19,8 @@ jobs:
         update: true
         install: >-
           base-devel
-          mingw-w64-x86_64-gcc
           mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-openssl
 
     - name: Download iperf3 source
       shell: msys2 {0}
@@ -31,10 +31,10 @@ jobs:
     - name: Build iperf3
       shell: msys2 {0}
       run: |
+        export CC=x86_64-w64-mingw32-gcc
         cd iperf-3.20
-        LIBS="-lws2_32" ./configure
-        make
-        make install
+        ./configure --host=x86_64-w64-mingw32 LIBS="-lws2_32"
+        make -j4
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
