@@ -1,0 +1,54 @@
+name: Build iperf3 Windows Static
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          base-devel
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-openssl
+          mingw-w64-x86_64-autotools
+
+    - name: Download iperf3
+      shell: msys2 {0}
+      run: |
+        curl -L https://github.com/esnet/iperf/releases/download/3.20/iperf-3.20.tar.gz -o iperf.tar.gz
+        tar -xzf iperf.tar.gz
+
+    - name: Build static iperf3
+      shell: msys2 {0}
+      run: |
+        export CC=x86_64-w64-mingw32-gcc
+        cd iperf-3.20
+        ./configure --host=x86_64-w64-mingw32 --enable-static-bin LIBS="-lws2_32"
+        make -j4
+        strip src/iperf3.exe
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: iperf3-windows-x64
+        path: iperf-3.20/src/iperf3.exe
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      if: github.event_name == 'workflow_dispatch'
+      with:
+        tag_name: iperf3-windows
+        name: iperf3 Windows Build
+        files: iperf-3.20/src/iperf3.exe
